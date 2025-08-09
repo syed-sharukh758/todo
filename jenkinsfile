@@ -19,7 +19,7 @@ pipeline{
         stage("build"){
             steps{
             script{
-                dockerbuild("getting-started now")
+                dockerbuild("getting-started ")
             }
           }
         } 
