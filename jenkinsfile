@@ -1,0 +1,45 @@
+@Library("helloshared") _
+pipeline{
+    agent {label "heena2"}
+    stages{
+        stage("hello"){
+            steps{
+                script{
+                    hello()
+                }
+            }
+        }
+        stage("code"){
+            steps{
+            script{
+            clone("https://github.com/syed-sharukh758/todo.git/","main")
+                }
+            }    
+        }
+        stage("build"){
+            steps{
+            script{
+                dockerbuild("getting-started")
+            }
+          }
+        } 
+        stage("push"){
+            steps{
+            echo "pushing to docker hub"
+            withCredentials([usernamePassword('credentialsId':"dockerhubcred",
+            passwordVariable:"dockerHubPass",
+            usernameVariable:"dockerHubUser")]){
+            sh "docker login -u ${env.dockerHubUser} -p ${dockerHubPass}"
+            sh "docker image tag  getting-started ${env.dockerHubUser}/getting-started"
+            sh "docker push ${env.dockerHubUser}/getting-started"
+            }
+            }         
+        }
+        stage("deploy"){
+            steps{
+            sh "docker compose up -d"
+            }         
+        }
+        
+    }
+}
